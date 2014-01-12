@@ -8,7 +8,7 @@ import robocode.*;
  * PowerfulRobot - a robot by Greatest Team
  */
 public class PowerfulRobot extends CaptureTheFlagApi {
-    
+
     private Point currentDestination;
     
     /**
@@ -27,16 +27,14 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         //setColors(Color.red,Color.blue,Color.green);
 
         while (true) {
-            // Replace the next 4 lines with any behavior you would like
-            //ahead(100);
-            //turnGunRight(360);
-            //back(100);
-            //turnGunRight(360);
-            
             goTo(new Point(50, 50));
+            waitFor(new MoveCompleteCondition(this));
             goTo(new Point(50, 1150));
-            goTo(new Point(850, 1150));
+            waitFor(new MoveCompleteCondition(this));
+            goTo(new Point(850, 1150));            
+            waitFor(new MoveCompleteCondition(this));
             goTo(new Point(850, 50));
+            waitFor(new MoveCompleteCondition(this));
         }
     }
 
@@ -45,17 +43,14 @@ public class PowerfulRobot extends CaptureTheFlagApi {
      */
     @Override
     public void onScannedRobot(ScannedRobotEvent e) {
-        boolean teammateSpotted = false;
+        fire(1);
         
-        for (String teammate : getTeammates()) {
-            if (teammate.equals(e.getName())) {
-                teammateSpotted = true;
-                break;
-            }
+        if (e.getDistance() < 100) {
+            setAhead(0);
+            execute();
         }
-        
-        if (!teammateSpotted) {
-            fire(1);
+        else {
+            goTo(currentDestination);
         }
     }
 
@@ -78,19 +73,30 @@ public class PowerfulRobot extends CaptureTheFlagApi {
     @Override
     public void onHitObstacle(HitObstacleEvent e) {
         // Replace the next 3 lines with any behavior you would like
-        back(20);
+        setBack(20);
         turnRight(90);
+        setAhead(40);
         goTo(currentDestination);
     }
 
     @Override
     public void onHitWall(HitWallEvent e) {
         // Replace the next 3 lines with any behavior you would like
-        back(20);
+        setBack(20);
         turnRight(90);
+        setAhead(40);
         goTo(currentDestination);
     }
 
+    @Override
+    public void onHitRobot(HitRobotEvent event) {
+        // Replace the next 3 lines with any behavior you would like
+        setBack(20);
+        turnRight(90);
+        setAhead(40);
+        goTo(currentDestination);
+    }
+    
     @Override
     public void onScannedObject(ScannedObjectEvent e) {
         if (e.getObjectType().equals("flag")) {
@@ -98,15 +104,17 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         }
     }
 
+    
+    
     private void goTo(Point destination) {
-       
-        currentDestination = new Point(destination);
         
         double currentX = getX();
         double currentY = getY();
         
+        currentDestination = new Point(destination);
+
         System.out.println("current x, y: " + currentX + "," + currentY);
-        
+
         double azimuthTg = Math.abs(destination.x - currentX) / Math.abs(destination.y - currentY);
         double relativeAzimuthInRad = Math.atan(azimuthTg);
         double relativeAzimuthInDeg = relativeAzimuthInRad * 180 / Math.PI;
@@ -146,23 +154,9 @@ public class PowerfulRobot extends CaptureTheFlagApi {
             turnLeft(-azimuthInDeg);
         }
         
-        for (int i = 0; i < 50; i+=5) {
-                turnLeft(5);
-                ahead(2);
-            }
-        
-        while (Math.abs(getX() - destination.x) > 20  || Math.abs(getY() - destination.y) > 20) {
-            
-            for (int i = 0; i < 100; i+=5) {
-                turnRight(5);
-                ahead(2);
-            }
-            for (int i = 0; i < 100; i+=5) {
-                turnLeft(5);
-                ahead(2);
-            }
-        }
-        
-        //stop();
+        double distance = Math.sqrt(Math.pow(destination.x - currentX, 2) + Math.pow(destination.y - currentY, 2));
+
+        setAhead(distance);
+        execute();
     }
 }
