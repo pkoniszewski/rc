@@ -3,10 +3,14 @@ package greatestteam;
 import CTFApi.CaptureTheFlagApi;
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import robocode.*;
+import sun.applet.Main;
 
 /**
  * PowerfulRobot - a robot by Greatest Team
@@ -87,8 +91,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-        } else if (event.getType().equals("flag") && getOwnFlag().distance(getX(), getY()) < 50) {
-            flagCaptured = true;
+        } else if (event.getType().equals("flag") && getOwnFlag().distance(getX(), getY()) < 50 && !getOwnBase().contains(new Point2D.Double(getX(), getY()))) {
             try {
                 StateMessage stateMsg = new StateMessage(new Point2D.Double(getX(), getY()), MessageType.RETURNED_OUR_FLAG);
                 broadcastMessage(stateMsg);
@@ -97,12 +100,15 @@ public class PowerfulRobot extends CaptureTheFlagApi {
             }
         }
         else if (event.getType().equals("base") && getOwnBase().contains(new Point2D.Double(getX(), getY()))) {
-            flagCaptured = false;
-            try {
-                StateMessage stateMsg = new StateMessage(new Point2D.Double(getX(), getY()), MessageType.DELIVERED_ENEMY_FLAG_TO_BASE);
-                broadcastMessage(stateMsg);
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            if (flagCaptured)
+            {
+                flagCaptured = false;
+                try {
+                    StateMessage stateMsg = new StateMessage(new Point2D.Double(getX(), getY()), MessageType.DELIVERED_ENEMY_FLAG_TO_BASE);
+                    broadcastMessage(stateMsg);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -111,24 +117,29 @@ public class PowerfulRobot extends CaptureTheFlagApi {
     public void onMessageReceived(MessageEvent e)
     {
         Object objMsg = e.getMessage();
-        System.out.println("MSG");
+                
         if (objMsg instanceof StateMessage)
         {
             StateMessage msg = (StateMessage)objMsg;
             String robot = e.getSender();
             teamMap.put(robot, msg.getPosition());
-            
-            switch (msg.getMessageType())
+            MessageType msgType = MessageType.values()[msg.getMessageType()];
+
+            switch (msgType)
             {
                 case GOT_ENEMY_FLAG:
                     flagCarrier = robot;
+                    System.out.println(flagCarrier + " took the enemy's flag");
                     break;
                 case DELIVERED_ENEMY_FLAG_TO_BASE:
                     flagCarrier = "";
+                    System.out.println(robot + " delivered the enemy's flag");
                     break;
                 case RETURNED_OUR_FLAG:
+                    System.out.println(robot + " returned the ours's flag");
                     break;
                 case SIMPLE_POSITION:
+                    
                     //ahead(100);
                     break;
             }
@@ -226,7 +237,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         execute();
     }
     
-    public enum MessageType
+    public static enum MessageType implements Serializable
     {
         GOT_ENEMY_FLAG,
         DELIVERED_ENEMY_FLAG_TO_BASE,
@@ -234,23 +245,23 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         SIMPLE_POSITION
     }
     
-    public class StateMessage implements Serializable {
-        private static final long serialVersionUID = 1L;
+    public static class StateMessage implements Serializable {
+        private static final long serialVersionUID = 7526472295622776147L;
 
-        private Point2D position;
+        private Point2D.Double position;
 
-        private MessageType messageType;
-        
-        public StateMessage(Point2D position, MessageType msgType) {
+        private int messageType;
+
+        public StateMessage(Point2D.Double position, MessageType msgType) {
                 this.position = position;
-                this.messageType = msgType;
+                this.messageType = msgType.ordinal();
         }
 
-        public MessageType getMessageType() {
+        public int getMessageType() {
             return messageType;
         }
 
-        public void setMessageType(MessageType messageType) {
+        public void setMessageType(int messageType) {
             this.messageType = messageType;
         }
         
@@ -258,7 +269,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
                 return position;
         }
 
-        public void setPosition(Point2D position) {
+        public void setPosition(Point2D.Double position) {
                 this.position = position;
         }
     }
