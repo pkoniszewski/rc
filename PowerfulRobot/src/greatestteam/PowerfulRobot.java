@@ -2,6 +2,12 @@ package greatestteam;
 
 import CTFApi.CaptureTheFlagApi;
 import java.awt.Point;
+import java.awt.geom.Point2D;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import robocode.*;
 
 /**
@@ -10,6 +16,10 @@ import robocode.*;
 public class PowerfulRobot extends CaptureTheFlagApi {
     
     private Point currentDestination;
+    boolean flagCaptured = false;
+    
+    HashMap<String, Point2D> teamMap = new HashMap<String, Point2D>();
+    String flagCarrier = "";
     
     /**
      * run: PowerfulRobot's default behaviour
@@ -37,6 +47,13 @@ public class PowerfulRobot extends CaptureTheFlagApi {
             goTo(new Point(50, 1150));
             goTo(new Point(850, 1150));
             goTo(new Point(850, 50));
+                        
+            StateMessage stateMsg = new StateMessage(new Point2D.Double(getX(), getY()), MessageType.SIMPLE_POSITION);
+            try {
+                broadcastMessage(stateMsg);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -69,12 +86,63 @@ public class PowerfulRobot extends CaptureTheFlagApi {
 
     @Override
     public void onHitObject(HitObjectEvent event) {
-        /**
-         * onHitObject: What to do when you hit an object. (obstacle,flag or
-         * wall)
-         */
+        if (event.getType().equals("flag") && getEnemyFlag().distance(getX(), getY()) < 50) {
+            flagCaptured = true;
+            try {
+                StateMessage stateMsg = new StateMessage(new Point2D.Double(getX(), getY()), MessageType.GOT_ENEMY_FLAG);
+                broadcastMessage(stateMsg);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } else if (event.getType().equals("flag") && getOwnFlag().distance(getX(), getY()) < 50) {
+            flagCaptured = true;
+            try {
+                StateMessage stateMsg = new StateMessage(new Point2D.Double(getX(), getY()), MessageType.RETURNED_OUR_FLAG);
+                broadcastMessage(stateMsg);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        else if (event.getType().equals("base") && getOwnBase().contains(new Point2D.Double(getX(), getY()))) {
+            flagCaptured = false;
+            try {
+                StateMessage stateMsg = new StateMessage(new Point2D.Double(getX(), getY()), MessageType.DELIVERED_ENEMY_FLAG_TO_BASE);
+                broadcastMessage(stateMsg);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
+    @Override
+    public void onMessageReceived(MessageEvent e)
+    {
+        Object objMsg = e.getMessage();
+        System.out.println("MSG");
+        if (objMsg instanceof StateMessage)
+        {
+            StateMessage msg = (StateMessage)objMsg;
+            String robot = e.getSender();
+            teamMap.put(robot, msg.getPosition());
+            
+            switch (msg.getMessageType())
+            {
+                case GOT_ENEMY_FLAG:
+                    flagCarrier = robot;
+                    break;
+                case DELIVERED_ENEMY_FLAG_TO_BASE:
+                    flagCarrier = "";
+                    break;
+                case RETURNED_OUR_FLAG:
+                    break;
+                case SIMPLE_POSITION:
+                    //ahead(100);
+                    break;
+            }
+        }
+
+    }
+    
     @Override
     public void onHitObstacle(HitObstacleEvent e) {
         // Replace the next 3 lines with any behavior you would like
@@ -164,5 +232,42 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         }
         
         //stop();
+    }
+    
+    public enum MessageType
+    {
+        GOT_ENEMY_FLAG,
+        DELIVERED_ENEMY_FLAG_TO_BASE,
+        RETURNED_OUR_FLAG,
+        SIMPLE_POSITION
+    }
+    
+    public class StateMessage implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        private Point2D position;
+
+        private MessageType messageType;
+        
+        public StateMessage(Point2D position, MessageType msgType) {
+                this.position = position;
+                this.messageType = msgType;
+        }
+
+        public MessageType getMessageType() {
+            return messageType;
+        }
+
+        public void setMessageType(MessageType messageType) {
+            this.messageType = messageType;
+        }
+        
+        public Point2D getPosition() {
+                return position;
+        }
+
+        public void setPosition(Point2D position) {
+                this.position = position;
+        }
     }
 }
