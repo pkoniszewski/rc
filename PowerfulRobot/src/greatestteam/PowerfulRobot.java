@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import robocode.*;
+import robocode.util.*;
 import sun.applet.Main;
 
 /**
@@ -37,16 +38,17 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         // Write your logic here
         // After trying out your robot, try uncommenting the next line:
         //setColors(Color.red,Color.blue,Color.green);
-
+back(100);
         while (true) {
-            goTo(new Point(50, 50));
-            waitFor(new MoveCompleteCondition(this));
-            goTo(new Point(50, 1150));
-            waitFor(new MoveCompleteCondition(this));
-            goTo(new Point(850, 1150));            
-            waitFor(new MoveCompleteCondition(this));
-            goTo(new Point(850, 50));
-            waitFor(new MoveCompleteCondition(this));
+            turnRadarRight(360);
+//            goTo(new Point(50, 50));
+//            waitFor(new MoveCompleteCondition(this));
+//            goTo(new Point(50, 1150));
+//            waitFor(new MoveCompleteCondition(this));
+//            goTo(new Point(850, 1150));            
+//            waitFor(new MoveCompleteCondition(this));
+//            goTo(new Point(850, 50));
+//            waitFor(new MoveCompleteCondition(this));
 
             StateMessage stateMsg = new StateMessage(new Point2D.Double(getX(), getY()), MessageType.SIMPLE_POSITION);
             try {
@@ -62,7 +64,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
      */
     @Override
     public void onScannedRobot(ScannedRobotEvent e) {
-        fire(1);
+        aim(e);
         
         if (e.getDistance() < 100) {
             setAhead(0);
@@ -272,5 +274,44 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         public void setPosition(Point2D.Double position) {
                 this.position = position;
         }
+    }
+    
+    
+    private void aim(ScannedRobotEvent e) {
+        double bulletPower = Math.min(2.0, getEnergy());
+        double myX = getX();
+        double myY = getY();
+        double absoluteBearing = getHeadingRadians() + e.getBearingRadians();
+        double enemyX = getX() + e.getDistance() * Math.sin(absoluteBearing);
+        double enemyY = getY() + e.getDistance() * Math.cos(absoluteBearing);
+        double enemyHeading = e.getHeadingRadians();
+        double enemyVelocity = e.getVelocity();
+
+        double deltaTime = 0;
+        double battleFieldHeight = getBattleFieldHeight(),
+                battleFieldWidth = getBattleFieldWidth();
+        double predictedX = enemyX, predictedY = enemyY;
+        while ((++deltaTime) * (20.0 - 3.0 * bulletPower)
+                < Point2D.Double.distance(myX, myY, predictedX, predictedY)) {
+            predictedX += Math.sin(enemyHeading) * enemyVelocity;
+            predictedY += Math.cos(enemyHeading) * enemyVelocity;
+            if (predictedX < 18.0
+                    || predictedY < 18.0
+                    || predictedX > battleFieldWidth - 18.0
+                    || predictedY > battleFieldHeight - 18.0) {
+                predictedX = Math.min(Math.max(18.0, predictedX),
+                        battleFieldWidth - 18.0);
+                predictedY = Math.min(Math.max(18.0, predictedY),
+                        battleFieldHeight - 18.0);
+                break;
+            }
+        }
+        double theta = Utils.normalAbsoluteAngle(Math.atan2(
+                predictedX - getX(), predictedY - getY()));
+
+        setTurnRadarRightRadians(
+                Utils.normalRelativeAngle(absoluteBearing - getRadarHeadingRadians()));
+        setTurnGunRightRadians(Utils.normalRelativeAngle(theta - getGunHeadingRadians()));
+        fire(bulletPower);
     }
 }
