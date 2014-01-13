@@ -38,17 +38,17 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         // Write your logic here
         // After trying out your robot, try uncommenting the next line:
         //setColors(Color.red,Color.blue,Color.green);
-back(100);
+//back(100);
         while (true) {
-            turnRadarRight(360);
-//            goTo(new Point(50, 50));
-//            waitFor(new MoveCompleteCondition(this));
-//            goTo(new Point(50, 1150));
-//            waitFor(new MoveCompleteCondition(this));
-//            goTo(new Point(850, 1150));            
-//            waitFor(new MoveCompleteCondition(this));
-//            goTo(new Point(850, 50));
-//            waitFor(new MoveCompleteCondition(this));
+            
+            goTo(new Point(50, 50));
+            waitFor(new MoveCompleteCondition(this));
+            goTo(new Point(50, 1150));
+            waitFor(new MoveCompleteCondition(this));
+            goTo(new Point(850, 1150));            
+            waitFor(new MoveCompleteCondition(this));
+            goTo(new Point(850, 50));
+            waitFor(new MoveCompleteCondition(this));
 
             StateMessage stateMsg = new StateMessage(new Point2D.Double(getX(), getY()), MessageType.SIMPLE_POSITION);
             try {
@@ -64,6 +64,7 @@ back(100);
      */
     @Override
     public void onScannedRobot(ScannedRobotEvent e) {
+        if(isTeammate(e.getName()))return;
         aim(e);
         
         if (e.getDistance() < 100) {
@@ -234,7 +235,7 @@ back(100);
         }
         
         double distance = Math.sqrt(Math.pow(destination.x - currentX, 2) + Math.pow(destination.y - currentY, 2));
-
+        setTurnRadarRight(360);
         setAhead(distance);
         execute();
     }
@@ -278,7 +279,7 @@ back(100);
     
     
     private void aim(ScannedRobotEvent e) {
-        double bulletPower = Math.min(2.0, getEnergy());
+        double bulletPower = Math.min(3.0, getEnergy());
         double myX = getX();
         double myY = getY();
         double absoluteBearing = getHeadingRadians() + e.getBearingRadians();
