@@ -138,13 +138,14 @@ addCustomEvent(new Condition("RobotStopped") {
         super.onCustomEvent(event); //To change body of generated methods, choose Tools | Templates.
         Condition cd = event.getCondition();
         if(cd.getName().equals("RobotStopped")){
-            eventCounter++;
-            if(eventCounter > 10){
+         //   eventCounter++;
+        //    if(eventCounter > 10){
               //  System.out.println("jade dalej");
+            setTurnRadarRight(360);
                 makeMove(currentDestination);
-                eventCounter=0;
+         //       eventCounter=0;
                 
-            }
+        //    }
         }
     }
 
@@ -271,7 +272,7 @@ addCustomEvent(new Condition("RobotStopped") {
 //        setBack(30);
 //        turnRight(90);
 //        setAhead(30);
-        makeMove(currentDestination);
+      //  makeMove(currentDestination);
     }
 
     @Override
@@ -282,7 +283,7 @@ addCustomEvent(new Condition("RobotStopped") {
 //        setBack(30);
 //        turnRight(90);
 //        setAhead(30);
-        makeMove(currentDestination);
+       // makeMove(currentDestination);
     }
 
     @Override
@@ -295,7 +296,7 @@ addCustomEvent(new Condition("RobotStopped") {
         System.out.println("hit robot");
 //        turnLeft(90 - e.getBearing());
 //        ahead(30);
-        makeMove(currentDestination);
+      //  makeMove(currentDestination);
     }
 
     @Override
