@@ -57,6 +57,14 @@ turnRadarRight(360);
         }
     }
 
+    @Override
+    public void onRobotDeath(RobotDeathEvent event) {
+        super.onRobotDeath(event); //To change body of generated methods, choose Tools | Templates.
+        if(isTeammate(event.getName())){
+            teamMap.remove(event.getName());
+        }
+    }
+
     /**
      * onScannedRobot: What to do when you see another robot
      */
@@ -312,29 +320,30 @@ turnRadarRight(360);
 // d = |Ax+By+C| / sqrt(AA+BB)
 // d = |tg(a)*x - y + y0 - tg(a)*x0| / sqrt(tg(a)^2 + 1)
         double aim = getGunHeadingRadians() + Utils.normalRelativeAngle(theta - getGunHeadingRadians());
-        int vdir = -1;
-        if((aim < Math.PI/2) || (aim > Math.PI*3/2))vdir=1;
-        int hdir = -1;
-        if(aim < Math.PI)hdir=1;
-        double oaim=aim;
+
         aim = Math.PI/2 - aim;
         double A=Math.tan(aim);
+        double A2=0;
         boolean vertical = false;
+        boolean horizontal = false;
         if(Double.isNaN(A)){
             vertical=true;
+        }else{
+            if(A==0)horizontal=true;
+            else A2 = -1/A;
         }
         double B = -1;
         double C = myY - A * myX;
         boolean dontshoot=false;
+        Point.Double mypos = new Point.Double(myX, myY);
+        boolean targetside = determineSide(A2, C, new Point.Double(enemyX, enemyY),
+                mypos, horizontal, vertical);
+        System.out.println(targetside+":");
         for (Point.Double p : teamMap.values()) {
-            int vdir2=-1;
-            if(p.y > myY)vdir2=1;
-            int hdir2=-1;
-            if(p.x > myX)hdir2=1;
-            System.out.println(p.x+" "+p.y+" .. "+oaim);
-            System.out.println("("+vdir+" "+hdir+") ("+vdir2+" "+hdir2+")");
-            // && ((p.x!=myX)&&(p.y!=myY))
-            if(((vdir!=vdir2) || (hdir!=hdir2)))continue;
+            boolean tankside=determineSide(A2, C, p, mypos, horizontal, vertical);
+            System.out.println(" "+targetside);
+            if(targetside!=tankside)continue;
+            
             if(Math.sqrt((myX-p.x)*(myX-p.x)+(myY-p.y)*(myY-p.y))<e.getDistance()){
                 if(vertical){
                     if(Math.abs(p.x-myX) < 36){dontshoot=true;break;}
@@ -348,5 +357,19 @@ turnRadarRight(360);
                 Utils.normalRelativeAngle(absoluteBearing - getRadarHeadingRadians()));
         setTurnGunRightRadians(Utils.normalRelativeAngle(theta - getGunHeadingRadians()));
         fire(bulletPower);
+    }
+    // y = mx+b
+    private boolean determineSide(double m, double b, Point.Double p, Point.Double o, boolean horizontal, boolean vertical){
+        if(horizontal){
+            return p.y > b;
+        }
+        if(vertical){
+            return p.x > o.x;
+        }
+        if(m>0){
+            return p.y > m*p.x+b;
+        }
+        else return p.y < m*p.x+b;
+           
     }
 }
