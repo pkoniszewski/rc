@@ -52,7 +52,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         } else {
             up = true;
         }
-        
+
         //drugi w wezyku
         if ((getY() > 450 && getY() < 550) || (getY() > 650 && getY() < 750)) {
             for (int i = 0; i < 15; i++) {
@@ -66,8 +66,8 @@ public class PowerfulRobot extends CaptureTheFlagApi {
                 doNothing();
             }
         }
-        
-        
+
+
         if (up) {
             makeMove(new Point((int) this.getX(), 1170));
         } else {
@@ -104,14 +104,13 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         }
     }
 
- 	@Override
+    @Override
     public void onRobotDeath(RobotDeathEvent event) {
         super.onRobotDeath(event); //To change body of generated methods, choose Tools | Templates.
-        if(isTeammate(event.getName())){
+        if (isTeammate(event.getName())) {
             teamMap.remove(event.getName());
         }
     }
-
 
     /**
      * onScannedRobot: What to do when you see another robot
@@ -120,11 +119,11 @@ public class PowerfulRobot extends CaptureTheFlagApi {
     public void onScannedRobot(ScannedRobotEvent e) {
 
         System.out.println("scanned robot");
-        
+
         if (isTeammate(e.getName())) {
             return;
         }
-        
+
         aim(e);
         makeMove(currentDestination);
     }
@@ -145,9 +144,9 @@ public class PowerfulRobot extends CaptureTheFlagApi {
 
     @Override
     public void onHitObject(HitObjectEvent event) {
-       
+
         System.out.println("hit object");
-        
+
         if (event.getType().equals("flag") && getEnemyFlag().distance(getX(), getY()) < 50) {
             flagCaptured = true;
             try {
@@ -178,9 +177,9 @@ public class PowerfulRobot extends CaptureTheFlagApi {
 
     @Override
     public void onMessageReceived(MessageEvent e) {
-        
+
         System.out.println("message received");
-        
+
         Object objMsg = e.getMessage();
 
         if (objMsg instanceof StateMessage) {
@@ -213,7 +212,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
     @Override
     public void onHitObstacle(HitObstacleEvent e) {
         System.out.println("hit obstacle");
-        
+
         // Replace the next 3 lines with any behavior you would like
         setBack(30);
         turnRight(90);
@@ -224,7 +223,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
     @Override
     public void onHitWall(HitWallEvent e) {
         System.out.println("hit wall");
-        
+
         // Replace the next 3 lines with any behavior you would like
         setBack(30);
         turnRight(90);
@@ -240,7 +239,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
 //        setAhead(40);
 //        makeMove(currentDestination);
         System.out.println("hit robot");
-        
+
         turnLeft(90 - e.getBearing());
         ahead(30);
         makeMove(currentDestination);
@@ -249,7 +248,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
     @Override
     public void onScannedObject(ScannedObjectEvent e) {
         System.out.println("scanned object");
-        
+
         if (e.getObjectType().equals("flag")) {
             e.getBearing();
         }
@@ -374,60 +373,75 @@ public class PowerfulRobot extends CaptureTheFlagApi {
 // d = |tg(a)*x - y + y0 - tg(a)*x0| / sqrt(tg(a)^2 + 1)
         double aim = getGunHeadingRadians() + Utils.normalRelativeAngle(theta - getGunHeadingRadians());
 
-        aim = Math.PI/2 - aim;
-        double A=Math.tan(aim);
-        double A2=0;
+        aim = Math.PI / 2 - aim;
+        double A = Math.tan(aim);
+        double A2 = 0;
         boolean vertical = false;
         boolean horizontal = false;
-        if(Double.isNaN(A)){
-            vertical=true;
-            A=0;
-        }else{
-            if(A==0)horizontal=true;
-            else A2 = -1/A;
+        if (Double.isNaN(A)) {
+            vertical = true;
+            A = 0;
+        } else {
+            if (A == 0) {
+                horizontal = true;
+            } else {
+                A2 = -1 / A;
+            }
         }
         double B = -1;
         double C = myY - A * myX;
         double C2 = myY - A2 * myX;
-        System.out.println(C+" "+C2);
-        boolean dontshoot=false;
+        System.out.println(C + " " + C2);
+        boolean dontshoot = false;
         Point.Double mypos = new Point.Double(myX, myY);
         boolean targetside = determineSide(A2, C2, new Point.Double(enemyX, enemyY),
                 mypos, horizontal, vertical);
 //        System.out.println(targetside+":");
         for (Point.Double p : teamMap.values()) {
-            boolean tankside=determineSide(A2, C2, p, mypos, horizontal, vertical);
+            boolean tankside = determineSide(A2, C2, p, mypos, horizontal, vertical);
 //            System.out.println(" "+targetside);
-            if(targetside!=tankside)continue;
-            
-            if(Math.sqrt((myX-p.x)*(myX-p.x)+(myY-p.y)*(myY-p.y))<e.getDistance()){
-                if(vertical){
-                    if(Math.abs(p.x-myX) < 36){dontshoot=true;break;}
+            if (targetside != tankside) {
+                continue;
+            }
+
+            if (Math.sqrt((myX - p.x) * (myX - p.x) + (myY - p.y) * (myY - p.y)) < e.getDistance()) {
+                if (vertical) {
+                    if (Math.abs(p.x - myX) < 36) {
+                        dontshoot = true;
+                        break;
+                    }
                 }
-                if((Math.abs(A*p.x+B*p.y+C)/Math.sqrt(A*A+B*B))<36){dontshoot=true;break;}
+                if ((Math.abs(A * p.x + B * p.y + C) / Math.sqrt(A * A + B * B)) < 36) {
+                    dontshoot = true;
+                    break;
+                }
             }
         }
 //        System.out.println("");
         //gA=A;gB=B;gC=C;gA2=A2;gC2=C2;
-        if(dontshoot)return;
+        if (dontshoot) {
+            return;
+        }
         setTurnRadarRightRadians(
                 Utils.normalRelativeAngle(absoluteBearing - getRadarHeadingRadians()));
         setTurnGunRightRadians(Utils.normalRelativeAngle(theta - getGunHeadingRadians()));
         fire(bulletPower);
     }
     // y = mx+b
-    private boolean determineSide(double m, double b, Point.Double p, Point.Double o, boolean horizontal, boolean vertical){
-        if(horizontal){
+
+    private boolean determineSide(double m, double b, Point.Double p, Point.Double o, boolean horizontal, boolean vertical) {
+        if (horizontal) {
             return p.y > b;
         }
-        if(vertical){
+        if (vertical) {
             return p.x > o.x;
         }
-        if(m>0){
-            return p.y > m*p.x+b;
+        if (m > 0) {
+            return p.y > m * p.x + b;
+        } else {
+            return p.y < m * p.x + b;
         }
-        else return p.y < m*p.x+b;
-           
+
     }
 //    double gA,gB,gC,gA2,gC2;
 //    	public void onPaint(Graphics2D g) {
@@ -449,8 +463,8 @@ public class PowerfulRobot extends CaptureTheFlagApi {
 //                g.drawLine(x1, y21, x2, y22);
 //                
 //	}
-	
-	private void makeMove(Point destination) {
+
+    private void makeMove(Point destination) {
 
         System.out.println("Heading for: " + destination);
         goTo(destination);
@@ -460,5 +474,4 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         setAhead(0);
         execute();
     }
-
 }
