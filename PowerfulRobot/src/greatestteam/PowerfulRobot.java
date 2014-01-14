@@ -97,30 +97,30 @@ addCustomEvent(new Condition("RobotStopped") {
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(30, 1170));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(830, 70));
+                    makeMove(new Point(820, 1120));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(830, 1130));
+                    makeMove(new Point(80, 1120));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(70, 1130));
+                    makeMove(new Point(80, 80));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(70, 70));
+                    makeMove(new Point(820, 80));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                 } else {
-                    makeMove(new Point(830, 70));
+                    makeMove(new Point(820, 80));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(830, 1130));
+                    makeMove(new Point(820, 1120));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(70, 1130));
+                    makeMove(new Point(80, 1120));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(70, 70));
-                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(870, 1170));
+                    makeMove(new Point(80, 80));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(870, 30));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(30, 30));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(30, 1170));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
+                    makeMove(new Point(870, 1170));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                 }
             } else {
@@ -133,30 +133,30 @@ addCustomEvent(new Condition("RobotStopped") {
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(870, 1170));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(70, 70));
+                    makeMove(new Point(80, 1120));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(70, 1130));
+                    makeMove(new Point(820, 1120));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(830, 1130));
+                    makeMove(new Point(820, 80));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(830, 70));
+                    makeMove(new Point(80, 80));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                 } else {
-                    makeMove(new Point(70, 70));
+                    makeMove(new Point(80, 80));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(70, 1130));
+                    makeMove(new Point(80, 1120));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(830, 1130));
+                    makeMove(new Point(820, 1120));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(830, 70));
-                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-                    makeMove(new Point(30, 1170));
+                    makeMove(new Point(820, 80));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(30, 30));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(870, 30));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(870, 1170));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
+                    makeMove(new Point(30, 1170));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                 }
             }
