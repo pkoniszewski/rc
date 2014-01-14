@@ -228,9 +228,9 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         System.out.println("hit obstacle");
 
         // Replace the next 3 lines with any behavior you would like
-        setBack(30);
-        turnRight(90);
-        setAhead(30);
+//        setBack(30);
+//        turnRight(90);
+//        setAhead(30);
         makeMove(currentDestination);
     }
 
@@ -239,9 +239,9 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         System.out.println("hit wall");
 
         // Replace the next 3 lines with any behavior you would like
-        setBack(30);
-        turnRight(90);
-        setAhead(30);
+//        setBack(30);
+//        turnRight(90);
+//        setAhead(30);
         makeMove(currentDestination);
     }
 
@@ -254,8 +254,8 @@ public class PowerfulRobot extends CaptureTheFlagApi {
 //        makeMove(currentDestination);
         System.out.println("hit robot");
 
-        turnLeft(90 - e.getBearing());
-        ahead(30);
+//        turnLeft(90 - e.getBearing());
+//        ahead(30);
         makeMove(currentDestination);
     }
 
@@ -440,6 +440,14 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         setTurnRadarRightRadians(
                 Utils.normalRelativeAngle(absoluteBearing - getRadarHeadingRadians()));
         setTurnGunRightRadians(Utils.normalRelativeAngle(theta - getGunHeadingRadians()));
+        
+        waitFor(new Condition("gunRotated") {
+            
+            @Override
+            public boolean test() {
+                return getGunTurnRemaining() == 0;
+            }
+        });
         fire(bulletPower);
     }
     // y = mx+b
