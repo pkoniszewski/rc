@@ -3,15 +3,12 @@ package greatestteam;
 import CTFApi.CaptureTheFlagApi;
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import robocode.*;
 import robocode.util.*;
-import sun.applet.Main;
 
 /**
  * PowerfulRobot - a robot by Greatest Team
@@ -21,7 +18,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
     private Point currentDestination;
     boolean flagCaptured = false;
     
-    HashMap<String, Point2D> teamMap = new HashMap<String, Point2D>();
+    HashMap<String, Point2D.Double> teamMap = new HashMap<String, Point2D.Double>();
     String flagCarrier = "";
     
     /**
@@ -34,25 +31,26 @@ public class PowerfulRobot extends CaptureTheFlagApi {
          * initialisation.
          */
         registerMe();
-
+        System.out.println(getName());
         // Write your logic here
         // After trying out your robot, try uncommenting the next line:
         //setColors(Color.red,Color.blue,Color.green);
-//back(100);
+back(Math.random()*200);
         while (true) {
-            
-            goTo(new Point(50, 50));
-            waitFor(new MoveCompleteCondition(this));
-            goTo(new Point(50, 1150));
-            waitFor(new MoveCompleteCondition(this));
-            goTo(new Point(850, 1150));            
-            waitFor(new MoveCompleteCondition(this));
-            goTo(new Point(850, 50));
-            waitFor(new MoveCompleteCondition(this));
+turnRadarRight(360);
+//            goTo(new Point(50, 50));
+//            waitFor(new MoveCompleteCondition(this));
+//            goTo(new Point(50, 1150));
+//            waitFor(new MoveCompleteCondition(this));
+//            goTo(new Point(850, 1150));            
+//            waitFor(new MoveCompleteCondition(this));
+//            goTo(new Point(850, 50));
+//            waitFor(new MoveCompleteCondition(this));
 
             StateMessage stateMsg = new StateMessage(new Point2D.Double(getX(), getY()), MessageType.SIMPLE_POSITION);
             try {
                 broadcastMessage(stateMsg);
+                
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -72,7 +70,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
             execute();
         }
         else {
-            goTo(currentDestination);
+           // goTo(currentDestination);
         }
     }
 
@@ -115,7 +113,6 @@ public class PowerfulRobot extends CaptureTheFlagApi {
             }
         }
     }
-
     @Override
     public void onMessageReceived(MessageEvent e)
     {
@@ -268,7 +265,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
             this.messageType = messageType;
         }
         
-        public Point2D getPosition() {
+        public Point2D.Double getPosition() {
                 return position;
         }
 
@@ -309,7 +306,44 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         }
         double theta = Utils.normalAbsoluteAngle(Math.atan2(
                 predictedX - getX(), predictedY - getY()));
-
+//y = tg(a)*(x-x0)+y0
+// 0 = Ax + By + C
+// 0 = tg(a)*x + (-1)*y + (y0 - tg(a)*x0)
+// d = |Ax+By+C| / sqrt(AA+BB)
+// d = |tg(a)*x - y + y0 - tg(a)*x0| / sqrt(tg(a)^2 + 1)
+        double aim = getGunHeadingRadians() + Utils.normalRelativeAngle(theta - getGunHeadingRadians());
+        int vdir = -1;
+        if((aim < Math.PI/2) || (aim > Math.PI*3/2))vdir=1;
+        int hdir = -1;
+        if(aim < Math.PI)hdir=1;
+        double oaim=aim;
+        aim = Math.PI/2 - aim;
+        double A=Math.tan(aim);
+        boolean vertical = false;
+        if(Double.isNaN(A)){
+            vertical=true;
+        }
+        double B = -1;
+        double C = myY - A * myX;
+        boolean dontshoot=false;
+        for (Point.Double p : teamMap.values()) {
+            int vdir2=-1;
+            if(p.y > myY)vdir2=1;
+            int hdir2=-1;
+            if(p.x > myX)hdir2=1;
+            System.out.println(p.x+" "+p.y+" .. "+oaim);
+            System.out.println("("+vdir+" "+hdir+") ("+vdir2+" "+hdir2+")");
+            // && ((p.x!=myX)&&(p.y!=myY))
+            if(((vdir!=vdir2) || (hdir!=hdir2)))continue;
+            if(Math.sqrt((myX-p.x)*(myX-p.x)+(myY-p.y)*(myY-p.y))<e.getDistance()){
+                if(vertical){
+                    if(Math.abs(p.x-myX) < 36){dontshoot=true;break;}
+                }
+                if((Math.abs(A*p.x+B*p.y+C)/Math.sqrt(A*A+B*B))<36){dontshoot=true;break;}
+            }
+        }
+        System.out.println("");
+        if(dontshoot)return;
         setTurnRadarRightRadians(
                 Utils.normalRelativeAngle(absoluteBearing - getRadarHeadingRadians()));
         setTurnGunRightRadians(Utils.normalRelativeAngle(theta - getGunHeadingRadians()));
