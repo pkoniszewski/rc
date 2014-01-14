@@ -1,12 +1,13 @@
 package greatestteam;
 
 import CTFApi.CaptureTheFlagApi;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Map.Entry;
 import java.util.Random;
 import robocode.*;
 import robocode.util.*;
@@ -102,6 +103,15 @@ public class PowerfulRobot extends CaptureTheFlagApi {
             }
         }
     }
+
+ 	@Override
+    public void onRobotDeath(RobotDeathEvent event) {
+        super.onRobotDeath(event); //To change body of generated methods, choose Tools | Templates.
+        if(isTeammate(event.getName())){
+            teamMap.remove(event.getName());
+        }
+    }
+
 
     /**
      * onScannedRobot: What to do when you see another robot
@@ -371,20 +381,23 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         boolean horizontal = false;
         if(Double.isNaN(A)){
             vertical=true;
+            A=0;
         }else{
             if(A==0)horizontal=true;
             else A2 = -1/A;
         }
         double B = -1;
         double C = myY - A * myX;
+        double C2 = myY - A2 * myX;
+        System.out.println(C+" "+C2);
         boolean dontshoot=false;
         Point.Double mypos = new Point.Double(myX, myY);
-        boolean targetside = determineSide(A2, C, new Point.Double(enemyX, enemyY),
+        boolean targetside = determineSide(A2, C2, new Point.Double(enemyX, enemyY),
                 mypos, horizontal, vertical);
-        System.out.println(targetside+":");
+//        System.out.println(targetside+":");
         for (Point.Double p : teamMap.values()) {
-            boolean tankside=determineSide(A2, C, p, mypos, horizontal, vertical);
-            System.out.println(" "+targetside);
+            boolean tankside=determineSide(A2, C2, p, mypos, horizontal, vertical);
+//            System.out.println(" "+targetside);
             if(targetside!=tankside)continue;
             
             if(Math.sqrt((myX-p.x)*(myX-p.x)+(myY-p.y)*(myY-p.y))<e.getDistance()){
@@ -394,7 +407,8 @@ public class PowerfulRobot extends CaptureTheFlagApi {
                 if((Math.abs(A*p.x+B*p.y+C)/Math.sqrt(A*A+B*B))<36){dontshoot=true;break;}
             }
         }
-        System.out.println("");
+//        System.out.println("");
+        //gA=A;gB=B;gC=C;gA2=A2;gC2=C2;
         if(dontshoot)return;
         setTurnRadarRightRadians(
                 Utils.normalRelativeAngle(absoluteBearing - getRadarHeadingRadians()));
@@ -415,8 +429,28 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         else return p.y < m*p.x+b;
            
     }
-
-    private void makeMove(Point destination) {
+//    double gA,gB,gC,gA2,gC2;
+//    	public void onPaint(Graphics2D g) {
+//		// Draw a red cross hair with the center at the current aim
+//		// coordinate (x,y)
+////		g.drawOval(aimX - 15, aimY - 15, 30, 30);
+////		g.drawLine(aimX, aimY - 4, aimX, aimY + 4);
+////		g.drawLine(aimX - 4, aimY, aimX + 4, aimY);
+//                //y=Ax+C
+//                int x1=0;
+//                int x2=900;
+//                int y11=(int)(gA*x1+gC);
+//                int y12=(int)(gA*x2+gC);
+//                int y21=(int)(gA2*x1+gC2);
+//                int y22=(int)(gA2*x2+gC2);
+//                g.setColor(Color.RED);
+//                g.drawLine(x1, y11, x2, y12);
+//                g.setColor(Color.GREEN);
+//                g.drawLine(x1, y21, x2, y22);
+//                
+//	}
+	
+	private void makeMove(Point destination) {
 
         System.out.println("Heading for: " + destination);
         goTo(destination);
@@ -426,4 +460,5 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         setAhead(0);
         execute();
     }
+
 }
