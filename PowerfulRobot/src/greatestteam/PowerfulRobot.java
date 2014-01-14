@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Random;
 import robocode.*;
 import robocode.util.*;
 
@@ -15,12 +16,14 @@ import robocode.util.*;
  */
 public class PowerfulRobot extends CaptureTheFlagApi {
 
+    private Random random = new Random();
+    private MoveCompleteCondition moveCompleteContidion = new MoveCompleteCondition(this);
     private Point currentDestination;
     boolean flagCaptured = false;
-    
     HashMap<String, Point2D.Double> teamMap = new HashMap<String, Point2D.Double>();
     String flagCarrier = "";
-    
+    boolean up, left;
+
     /**
      * run: PowerfulRobot's default behaviour
      */
@@ -35,24 +38,67 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         // Write your logic here
         // After trying out your robot, try uncommenting the next line:
         //setColors(Color.red,Color.blue,Color.green);
-back(Math.random()*200);
-        while (true) {
-turnRadarRight(360);
-//            goTo(new Point(50, 50));
-//            waitFor(new MoveCompleteCondition(this));
-//            goTo(new Point(50, 1150));
-//            waitFor(new MoveCompleteCondition(this));
-//            goTo(new Point(850, 1150));            
-//            waitFor(new MoveCompleteCondition(this));
-//            goTo(new Point(850, 50));
-//            waitFor(new MoveCompleteCondition(this));
+        //back(Math.random() * 200);
 
-            StateMessage stateMsg = new StateMessage(new Point2D.Double(getX(), getY()), MessageType.SIMPLE_POSITION);
-            try {
-                broadcastMessage(stateMsg);
-                
-            } catch (IOException ex) {
-                ex.printStackTrace();
+        if (this.getX() < 450) {
+            left = true;
+        } else {
+            left = false;
+        }
+
+        if (this.getY() < 600) {
+            up = false;
+        } else {
+            up = true;
+        }
+        
+        //drugi w wezyku
+        if ((getY() > 450 && getY() < 550) || (getY() > 650 && getY() < 750)) {
+            for (int i = 0; i < 15; i++) {
+                doNothing();
+            }
+        }
+
+        //trzeci w wezyku
+        if (getY() > 550 && getY() < 650) {
+            for (int i = 0; i < 30; i++) {
+                doNothing();
+            }
+        }
+        
+        
+        if (up) {
+            makeMove(new Point((int) this.getX(), 1170));
+        } else {
+            makeMove(new Point((int) this.getX(), 70));
+        }
+        //back(Math.random()*200);
+
+        while (true) {
+            if (left) {
+                if (up) {
+                    makeMove(new Point(870, 1170));
+                    makeMove(new Point(870, 30));
+                    makeMove(new Point(30, 30));
+                    makeMove(new Point(30, 1170));
+                } else {
+                    makeMove(new Point(830, 70));
+                    makeMove(new Point(830, 1130));
+                    makeMove(new Point(70, 1130));
+                    makeMove(new Point(70, 70));
+                }
+            } else {
+                if (up) {
+                    makeMove(new Point(30, 1170));
+                    makeMove(new Point(30, 30));
+                    makeMove(new Point(870, 30));
+                    makeMove(new Point(870, 1170));
+                } else {
+                    makeMove(new Point(70, 70));
+                    makeMove(new Point(70, 1130));
+                    makeMove(new Point(830, 1130));
+                    makeMove(new Point(830, 70));
+                }
             }
         }
     }
@@ -62,16 +108,19 @@ turnRadarRight(360);
      */
     @Override
     public void onScannedRobot(ScannedRobotEvent e) {
-        if(isTeammate(e.getName()))return;
-        aim(e);
+
+        System.out.println("scanned robot");
         
-        if (e.getDistance() < 100) {
-            setAhead(0);
-            execute();
+        if (isTeammate(e.getName())) {
+            return;
         }
-        else {
-           // goTo(currentDestination);
-        }
+        
+        aim(e);
+        makeMove(currentDestination);
+    }
+
+    private boolean inFrontOfMeFacingSameDirection(ScannedRobotEvent e) {
+        return Math.abs(e.getBearing()) < 30;
     }
 
     /**
@@ -79,11 +128,16 @@ turnRadarRight(360);
      */
     @Override
     public void onHitByBullet(HitByBulletEvent e) {
-//        turnLeft(90 - e.getBearing());
+        setTurnRadarLeft(360);
+        execute();
+        System.out.println("hit by bullet");
     }
 
     @Override
     public void onHitObject(HitObjectEvent event) {
+       
+        System.out.println("hit object");
+        
         if (event.getType().equals("flag") && getEnemyFlag().distance(getX(), getY()) < 50) {
             flagCaptured = true;
             try {
@@ -99,10 +153,8 @@ turnRadarRight(360);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-        }
-        else if (event.getType().equals("base") && getOwnBase().contains(new Point2D.Double(getX(), getY()))) {
-            if (flagCaptured)
-            {
+        } else if (event.getType().equals("base") && getOwnBase().contains(new Point2D.Double(getX(), getY()))) {
+            if (flagCaptured) {
                 flagCaptured = false;
                 try {
                     StateMessage stateMsg = new StateMessage(new Point2D.Double(getX(), getY()), MessageType.DELIVERED_ENEMY_FLAG_TO_BASE);
@@ -113,20 +165,21 @@ turnRadarRight(360);
             }
         }
     }
+
     @Override
-    public void onMessageReceived(MessageEvent e)
-    {
+    public void onMessageReceived(MessageEvent e) {
+        
+        System.out.println("message received");
+        
         Object objMsg = e.getMessage();
-                
-        if (objMsg instanceof StateMessage)
-        {
-            StateMessage msg = (StateMessage)objMsg;
+
+        if (objMsg instanceof StateMessage) {
+            StateMessage msg = (StateMessage) objMsg;
             String robot = e.getSender();
             teamMap.put(robot, msg.getPosition());
             MessageType msgType = MessageType.values()[msg.getMessageType()];
 
-            switch (msgType)
-            {
+            switch (msgType) {
                 case GOT_ENEMY_FLAG:
                     flagCarrier = robot;
                     System.out.println(flagCarrier + " took the enemy's flag");
@@ -139,122 +192,121 @@ turnRadarRight(360);
                     System.out.println(robot + " returned the ours's flag");
                     break;
                 case SIMPLE_POSITION:
-                    
+
                     //ahead(100);
                     break;
             }
         }
 
     }
-    
+
     @Override
     public void onHitObstacle(HitObstacleEvent e) {
+        System.out.println("hit obstacle");
+        
         // Replace the next 3 lines with any behavior you would like
-        setBack(20);
+        setBack(30);
         turnRight(90);
-        setAhead(40);
-        goTo(currentDestination);
+        setAhead(30);
+        makeMove(currentDestination);
     }
 
     @Override
     public void onHitWall(HitWallEvent e) {
+        System.out.println("hit wall");
+        
         // Replace the next 3 lines with any behavior you would like
-        setBack(20);
+        setBack(30);
         turnRight(90);
-        setAhead(40);
-        goTo(currentDestination);
+        setAhead(30);
+        makeMove(currentDestination);
     }
 
     @Override
-    public void onHitRobot(HitRobotEvent event) {
+    public void onHitRobot(HitRobotEvent e) {
         // Replace the next 3 lines with any behavior you would like
-        setBack(20);
-        turnRight(90);
-        setAhead(40);
-        goTo(currentDestination);
+//        setBack(20);
+//        turnRight(90);
+//        setAhead(40);
+//        makeMove(currentDestination);
+        System.out.println("hit robot");
+        
+        turnLeft(90 - e.getBearing());
+        ahead(30);
+        makeMove(currentDestination);
     }
-    
+
     @Override
     public void onScannedObject(ScannedObjectEvent e) {
+        System.out.println("scanned object");
+        
         if (e.getObjectType().equals("flag")) {
             e.getBearing();
         }
     }
 
-    
-    
     private void goTo(Point destination) {
-        
+
         double currentX = getX();
         double currentY = getY();
-        
-        currentDestination = new Point(destination);
 
-        System.out.println("current x, y: " + currentX + "," + currentY);
+        currentDestination = new Point(destination);
 
         double azimuthTg = Math.abs(destination.x - currentX) / Math.abs(destination.y - currentY);
         double relativeAzimuthInRad = Math.atan(azimuthTg);
         double relativeAzimuthInDeg = relativeAzimuthInRad * 180 / Math.PI;
-        
-        System.out.println("relative azimuth in deg: " + relativeAzimuthInDeg);
-        
+
         double heading = getHeading();
         double azimuthInDeg;
-        
+
         if (currentX > destination.x) {
-            relativeAzimuthInDeg += 90; 
-        }
-        else {
+            relativeAzimuthInDeg += 90;
+        } else {
             relativeAzimuthInDeg = 90 - relativeAzimuthInDeg;
         }
-        
+
         if (currentY > destination.y) {
             relativeAzimuthInDeg *= -1;
         }
-        
+
         azimuthInDeg = 90 - relativeAzimuthInDeg - heading;
-        
+
         if (azimuthInDeg < -180) {
             azimuthInDeg = 360 + azimuthInDeg;
         }
-        
+
         if (azimuthInDeg > 180) {
             azimuthInDeg = 360 - azimuthInDeg;
         }
-        
-        System.out.println("azimuth: " + azimuthInDeg);
-        
+
         if (azimuthInDeg >= 0) {
             turnRight(azimuthInDeg);
-        }
-        else {
+        } else {
             turnLeft(-azimuthInDeg);
         }
-        
+
         double distance = Math.sqrt(Math.pow(destination.x - currentX, 2) + Math.pow(destination.y - currentY, 2));
-        setTurnRadarRight(360);
         setAhead(distance);
         execute();
     }
-    
-    public static enum MessageType implements Serializable
-    {
+
+    public static enum MessageType implements Serializable {
+
         GOT_ENEMY_FLAG,
         DELIVERED_ENEMY_FLAG_TO_BASE,
         RETURNED_OUR_FLAG,
         SIMPLE_POSITION
     }
-    
+
     public static class StateMessage implements Serializable {
+
         private static final long serialVersionUID = 7526472295622776147L;
-
         private Point2D.Double position;
-
         private int messageType;
 
         public StateMessage(Point2D.Double position, MessageType msgType) {
-                this.position = position;
-                this.messageType = msgType.ordinal();
+            this.position = position;
+            this.messageType = msgType.ordinal();
         }
 
         public int getMessageType() {
@@ -264,17 +316,16 @@ turnRadarRight(360);
         public void setMessageType(int messageType) {
             this.messageType = messageType;
         }
-        
+
         public Point2D.Double getPosition() {
-                return position;
+            return position;
         }
 
         public void setPosition(Point2D.Double position) {
-                this.position = position;
+            this.position = position;
         }
     }
-    
-    
+
     private void aim(ScannedRobotEvent e) {
         double bulletPower = Math.min(3.0, getEnergy());
         double myX = getX();
@@ -312,29 +363,30 @@ turnRadarRight(360);
 // d = |Ax+By+C| / sqrt(AA+BB)
 // d = |tg(a)*x - y + y0 - tg(a)*x0| / sqrt(tg(a)^2 + 1)
         double aim = getGunHeadingRadians() + Utils.normalRelativeAngle(theta - getGunHeadingRadians());
-        int vdir = -1;
-        if((aim < Math.PI/2) || (aim > Math.PI*3/2))vdir=1;
-        int hdir = -1;
-        if(aim < Math.PI)hdir=1;
-        double oaim=aim;
+
         aim = Math.PI/2 - aim;
         double A=Math.tan(aim);
+        double A2=0;
         boolean vertical = false;
+        boolean horizontal = false;
         if(Double.isNaN(A)){
             vertical=true;
+        }else{
+            if(A==0)horizontal=true;
+            else A2 = -1/A;
         }
         double B = -1;
         double C = myY - A * myX;
         boolean dontshoot=false;
+        Point.Double mypos = new Point.Double(myX, myY);
+        boolean targetside = determineSide(A2, C, new Point.Double(enemyX, enemyY),
+                mypos, horizontal, vertical);
+        System.out.println(targetside+":");
         for (Point.Double p : teamMap.values()) {
-            int vdir2=-1;
-            if(p.y > myY)vdir2=1;
-            int hdir2=-1;
-            if(p.x > myX)hdir2=1;
-            System.out.println(p.x+" "+p.y+" .. "+oaim);
-            System.out.println("("+vdir+" "+hdir+") ("+vdir2+" "+hdir2+")");
-            // && ((p.x!=myX)&&(p.y!=myY))
-            if(((vdir!=vdir2) || (hdir!=hdir2)))continue;
+            boolean tankside=determineSide(A2, C, p, mypos, horizontal, vertical);
+            System.out.println(" "+targetside);
+            if(targetside!=tankside)continue;
+            
             if(Math.sqrt((myX-p.x)*(myX-p.x)+(myY-p.y)*(myY-p.y))<e.getDistance()){
                 if(vertical){
                     if(Math.abs(p.x-myX) < 36){dontshoot=true;break;}
@@ -348,5 +400,30 @@ turnRadarRight(360);
                 Utils.normalRelativeAngle(absoluteBearing - getRadarHeadingRadians()));
         setTurnGunRightRadians(Utils.normalRelativeAngle(theta - getGunHeadingRadians()));
         fire(bulletPower);
+    }
+    // y = mx+b
+    private boolean determineSide(double m, double b, Point.Double p, Point.Double o, boolean horizontal, boolean vertical){
+        if(horizontal){
+            return p.y > b;
+        }
+        if(vertical){
+            return p.x > o.x;
+        }
+        if(m>0){
+            return p.y > m*p.x+b;
+        }
+        else return p.y < m*p.x+b;
+           
+    }
+
+    private void makeMove(Point destination) {
+
+        System.out.println("Heading for: " + destination);
+        goTo(destination);
+        setTurnRadarLeft(360);
+        execute();
+        waitFor(new CustomMoveCompleteCondition(this, currentDestination));
+        setAhead(0);
+        execute();
     }
 }
