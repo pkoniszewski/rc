@@ -74,8 +74,11 @@ public class PowerfulRobot extends CaptureTheFlagApi {
             makeMove(new Point((int) this.getX(), 70));
         }
         //back(Math.random()*200);
-
+        
+        sendMessage(MessageType.SIMPLE_POSITION);
+        
         while (true) {
+            sendMessage(MessageType.SIMPLE_POSITION);
             if (left) {
                 if (up) {
                     makeMove(new Point(870, 1170));
@@ -101,6 +104,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
                     makeMove(new Point(830, 70));
                 }
             }
+            sendMessage(MessageType.SIMPLE_POSITION);
         }
     }
 
@@ -174,12 +178,22 @@ public class PowerfulRobot extends CaptureTheFlagApi {
             }
         }
     }
-
+    
+    void sendMessage(MessageType msg)
+    {
+        StateMessage stateMsg = new StateMessage(new Point2D.Double(getX(), getY()), msg);
+        try
+        {
+            broadcastMessage(stateMsg);
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
     @Override
     public void onMessageReceived(MessageEvent e) {
-
-        System.out.println("message received");
-
         Object objMsg = e.getMessage();
 
         if (objMsg instanceof StateMessage) {
@@ -201,7 +215,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
                     System.out.println(robot + " returned the ours's flag");
                     break;
                 case SIMPLE_POSITION:
-
+                    System.out.println(robot + ": SIMPLE_POSITION");
                     //ahead(100);
                     break;
             }
@@ -248,10 +262,11 @@ public class PowerfulRobot extends CaptureTheFlagApi {
     @Override
     public void onScannedObject(ScannedObjectEvent e) {
         System.out.println("scanned object");
-
+        sendMessage(MessageType.SIMPLE_POSITION);
         if (e.getObjectType().equals("flag")) {
             e.getBearing();
         }
+        sendMessage(MessageType.SIMPLE_POSITION);
     }
 
     private void goTo(Point destination) {
@@ -465,7 +480,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
 //	}
 
     private void makeMove(Point destination) {
-
+        sendMessage(MessageType.SIMPLE_POSITION);
         System.out.println("Heading for: " + destination);
         goTo(destination);
         setTurnRadarLeft(360);
@@ -473,5 +488,6 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         waitFor(new CustomMoveCompleteCondition(this, currentDestination));
         setAhead(0);
         execute();
+        sendMessage(MessageType.SIMPLE_POSITION);
     }
 }
