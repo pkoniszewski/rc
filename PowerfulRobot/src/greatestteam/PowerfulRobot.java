@@ -40,7 +40,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         // After trying out your robot, try uncommenting the next line:
         //setColors(Color.red,Color.blue,Color.green);
         //back(Math.random() * 200);
-addCustomEvent(new Condition("RobotStopped") {
+        addCustomEvent(new Condition("RobotStopped") {
 
             @Override
             public boolean test() {
@@ -61,14 +61,14 @@ addCustomEvent(new Condition("RobotStopped") {
 
         //drugi w wezyku
         if ((getY() > 450 && getY() < 550) || (getY() > 650 && getY() < 750)) {
-            for (int i = 0; i < 20; i++) {
+            for (int i = 0; i < 15; i++) {
                 doNothing();
             }
         }
 
         //trzeci w wezyku
         if (getY() > 550 && getY() < 650) {
-            for (int i = 0; i < 40; i++) {
+            for (int i = 0; i < 30; i++) {
                 doNothing();
             }
         }
@@ -195,6 +195,12 @@ addCustomEvent(new Condition("RobotStopped") {
     @Override
     public void onScannedRobot(ScannedRobotEvent e) {
 
+        if (e.getDistance() < 100) {
+            stop();
+        } else {
+            resume();
+        }
+        
         System.out.println("scanned robot");
 
         if (isTeammate(e.getName())) {
@@ -505,7 +511,7 @@ addCustomEvent(new Condition("RobotStopped") {
             }
         }
 //        System.out.println("");
-        //gA=A;gB=B;gC=C;gA2=A2;gC2=C2;
+        gA=A;gB=B;gC=C;gA2=A2;gC2=C2;
         if (dontshoot) {
             return;
         }
@@ -538,26 +544,26 @@ addCustomEvent(new Condition("RobotStopped") {
         }
 
     }
-//    double gA,gB,gC,gA2,gC2;
-//    	public void onPaint(Graphics2D g) {
-//		// Draw a red cross hair with the center at the current aim
-//		// coordinate (x,y)
-////		g.drawOval(aimX - 15, aimY - 15, 30, 30);
-////		g.drawLine(aimX, aimY - 4, aimX, aimY + 4);
-////		g.drawLine(aimX - 4, aimY, aimX + 4, aimY);
-//                //y=Ax+C
-//                int x1=0;
-//                int x2=900;
-//                int y11=(int)(gA*x1+gC);
-//                int y12=(int)(gA*x2+gC);
-//                int y21=(int)(gA2*x1+gC2);
-//                int y22=(int)(gA2*x2+gC2);
-//                g.setColor(Color.RED);
-//                g.drawLine(x1, y11, x2, y12);
-//                g.setColor(Color.GREEN);
-//                g.drawLine(x1, y21, x2, y22);
-//                
-//	}
+    double gA,gB,gC,gA2,gC2;
+    	public void onPaint(Graphics2D g) {
+		// Draw a red cross hair with the center at the current aim
+		// coordinate (x,y)
+//		g.drawOval(aimX - 15, aimY - 15, 30, 30);
+//		g.drawLine(aimX, aimY - 4, aimX, aimY + 4);
+//		g.drawLine(aimX - 4, aimY, aimX + 4, aimY);
+                //y=Ax+C
+                int x1=0;
+                int x2=900;
+                int y11=(int)(gA*x1+gC);
+                int y12=(int)(gA*x2+gC);
+                int y21=(int)(gA2*x1+gC2);
+                int y22=(int)(gA2*x2+gC2);
+                g.setColor(Color.RED);
+                g.drawLine(x1, y11, x2, y12);
+                g.setColor(Color.GREEN);
+                g.drawLine(x1, y21, x2, y22);
+                
+	}
 boolean imSupposedToBeImmobile=false;
     private void makeMove(Point destination) {
         sendMessage(MessageType.SIMPLE_POSITION);
