@@ -40,7 +40,13 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         // After trying out your robot, try uncommenting the next line:
         //setColors(Color.red,Color.blue,Color.green);
         //back(Math.random() * 200);
+addCustomEvent(new Condition("RobotStopped") {
 
+            @Override
+            public boolean test() {
+                return (getVelocity()==0);
+            }
+        });
         if (this.getX() < 450) {
             left = true;
         } else {
@@ -70,8 +76,10 @@ public class PowerfulRobot extends CaptureTheFlagApi {
 
         if (up) {
             makeMove(new Point((int) this.getX(), 1170));
+              waitFor(new CustomMoveCompleteCondition(this, currentDestination));
         } else {
             makeMove(new Point((int) this.getX(), 70));
+              waitFor(new CustomMoveCompleteCondition(this, currentDestination));
         }
         //back(Math.random()*200);
         
@@ -82,29 +90,61 @@ public class PowerfulRobot extends CaptureTheFlagApi {
             if (left) {
                 if (up) {
                     makeMove(new Point(870, 1170));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(870, 30));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(30, 30));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(30, 1170));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                 } else {
                     makeMove(new Point(830, 70));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(830, 1130));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(70, 1130));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(70, 70));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                 }
             } else {
                 if (up) {
                     makeMove(new Point(30, 1170));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(30, 30));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(870, 30));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(870, 1170));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                 } else {
                     makeMove(new Point(70, 70));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(70, 1130));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(830, 1130));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(830, 70));
+                      waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                 }
             }
             sendMessage(MessageType.SIMPLE_POSITION);
+        }
+    }
+
+    private int eventCounter=0;
+    @Override
+    public void onCustomEvent(CustomEvent event) {
+        super.onCustomEvent(event); //To change body of generated methods, choose Tools | Templates.
+        Condition cd = event.getCondition();
+        if(cd.getName().equals("RobotStopped")){
+            eventCounter++;
+            if(eventCounter > 10){
+              //  System.out.println("jade dalej");
+                makeMove(currentDestination);
+                eventCounter=0;
+                
+            }
         }
     }
 
@@ -253,7 +293,6 @@ public class PowerfulRobot extends CaptureTheFlagApi {
 //        setAhead(40);
 //        makeMove(currentDestination);
         System.out.println("hit robot");
-
 //        turnLeft(90 - e.getBearing());
 //        ahead(30);
         makeMove(currentDestination);
@@ -486,16 +525,18 @@ public class PowerfulRobot extends CaptureTheFlagApi {
 //                g.drawLine(x1, y21, x2, y22);
 //                
 //	}
-
+boolean imSupposedToBeImmobile=false;
     private void makeMove(Point destination) {
         sendMessage(MessageType.SIMPLE_POSITION);
         System.out.println("Heading for: " + destination);
+        
         goTo(destination);
         setTurnRadarLeft(360);
         execute();
-        waitFor(new CustomMoveCompleteCondition(this, currentDestination));
-        setAhead(0);
-        execute();
+      
+        
+//        setAhead(0);
+//        execute();
         sendMessage(MessageType.SIMPLE_POSITION);
     }
 }
