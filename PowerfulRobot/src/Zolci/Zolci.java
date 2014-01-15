@@ -546,7 +546,7 @@ public class Zolci extends CaptureTheFlagApi {
             }
         }
 //        System.out.println("");
-        gA=A;gB=B;gC=C;gA2=A2;gC2=C2;
+    //    gA=A;gB=B;gC=C;gA2=A2;gC2=C2;
         if (dontshoot) {
             return;
         }
@@ -579,26 +579,26 @@ public class Zolci extends CaptureTheFlagApi {
         }
 
     }
-    double gA,gB,gC,gA2,gC2;
-    	public void onPaint(Graphics2D g) {
-		// Draw a red cross hair with the center at the current aim
-		// coordinate (x,y)
-//		g.drawOval(aimX - 15, aimY - 15, 30, 30);
-//		g.drawLine(aimX, aimY - 4, aimX, aimY + 4);
-//		g.drawLine(aimX - 4, aimY, aimX + 4, aimY);
-                //y=Ax+C
-                int x1=0;
-                int x2=900;
-                int y11=(int)(gA*x1+gC);
-                int y12=(int)(gA*x2+gC);
-                int y21=(int)(gA2*x1+gC2);
-                int y22=(int)(gA2*x2+gC2);
-                g.setColor(Color.RED);
-                g.drawLine(x1, y11, x2, y12);
-                g.setColor(Color.GREEN);
-                g.drawLine(x1, y21, x2, y22);
-                
-	}
+//    double gA,gB,gC,gA2,gC2;
+//    	public void onPaint(Graphics2D g) {
+//		// Draw a red cross hair with the center at the current aim
+//		// coordinate (x,y)
+////		g.drawOval(aimX - 15, aimY - 15, 30, 30);
+////		g.drawLine(aimX, aimY - 4, aimX, aimY + 4);
+////		g.drawLine(aimX - 4, aimY, aimX + 4, aimY);
+//                //y=Ax+C
+//                int x1=0;
+//                int x2=900;
+//                int y11=(int)(gA*x1+gC);
+//                int y12=(int)(gA*x2+gC);
+//                int y21=(int)(gA2*x1+gC2);
+//                int y22=(int)(gA2*x2+gC2);
+//                g.setColor(Color.RED);
+//                g.drawLine(x1, y11, x2, y12);
+//                g.setColor(Color.GREEN);
+//                g.drawLine(x1, y21, x2, y22);
+//                
+//	}
 boolean imSupposedToBeImmobile=false;
     private void makeMove(Point destination) {
         sendMessage(MessageType.SIMPLE_POSITION);
