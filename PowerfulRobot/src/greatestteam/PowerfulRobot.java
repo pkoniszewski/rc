@@ -195,7 +195,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
     @Override
     public void onScannedRobot(ScannedRobotEvent e) {
 
-        if (e.getDistance() < 100) {
+        if (e.getDistance() < 30) {
             stop();
         } else {
             resume();
@@ -373,6 +373,14 @@ public class PowerfulRobot extends CaptureTheFlagApi {
 
         azimuthInDeg = 90 - relativeAzimuthInDeg - heading;
 
+        if (destination.y == currentY) {
+            if (currentX < destination.x) {
+                azimuthInDeg = 90;
+            } else {
+                azimuthInDeg = -90;
+            }
+        }
+        
         if (azimuthInDeg < -180) {
             azimuthInDeg = 360 + azimuthInDeg;
         }
