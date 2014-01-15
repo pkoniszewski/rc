@@ -90,6 +90,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
             if (left) {
                 if (up) {
                     makeMove(new Point(870, 1170));
+                    //System.out.println(1);
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
                     makeMove(new Point(870, 30));
                       waitFor(new CustomMoveCompleteCondition(this, currentDestination));
@@ -173,8 +174,8 @@ public class PowerfulRobot extends CaptureTheFlagApi {
          //   eventCounter++;
         //    if(eventCounter > 10){
               //  System.out.println("jade dalej");
-            setTurnRadarRight(360);
-                makeMove(currentDestination);
+          //  setTurnRadarRight(360);
+         //       makeMove(currentDestination);
          //       eventCounter=0;
                 
         //    }
@@ -195,11 +196,11 @@ public class PowerfulRobot extends CaptureTheFlagApi {
     @Override
     public void onScannedRobot(ScannedRobotEvent e) {
 
-        if (e.getDistance() < 30) {
-            stop();
-        } else {
-            resume();
-        }
+//        if (e.getDistance() < 30) {
+//            stop();
+//        } else {
+//            resume();
+//        }
         
         System.out.println("scanned robot");
 
@@ -310,7 +311,30 @@ public class PowerfulRobot extends CaptureTheFlagApi {
 //        setBack(30);
 //        turnRight(90);
 //        setAhead(30);
-      //  makeMove(currentDestination);
+        back(10);
+        if (getX() > 450) {
+            
+            if (getY() > 600) {
+                turnRight(90);
+                ahead(20);
+                turnLeft(90);
+            } else {
+                turnRight(-90);
+                ahead(20);
+                turnLeft(-90);
+            }
+        }else{
+            if (getY() > 600) {
+                turnRight(-90);
+                ahead(20);
+                turnLeft(-90);
+            } else {
+                turnRight(90);
+                ahead(20);
+                turnLeft(90);
+            }
+        }
+        makeMove(currentDestination);
     }
 
     @Override
@@ -319,9 +343,8 @@ public class PowerfulRobot extends CaptureTheFlagApi {
 
         // Replace the next 3 lines with any behavior you would like
 //        setBack(30);
-//        turnRight(90);
-//        setAhead(30);
-       // makeMove(currentDestination);
+
+        makeMove(currentDestination);
     }
 
     @Override
@@ -334,7 +357,9 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         System.out.println("hit robot");
 //        turnLeft(90 - e.getBearing());
 //        ahead(30);
-      //  makeMove(currentDestination);
+        if(e.isMyFault())
+            back(30);
+        makeMove(currentDestination);
     }
 
     @Override
@@ -388,7 +413,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         if (azimuthInDeg > 180) {
             azimuthInDeg = 360 - azimuthInDeg;
         }
-
+//System.out.println("        azim: "+azimuthInDeg);
         if (azimuthInDeg >= 0) {
             turnRight(azimuthInDeg);
         } else {
@@ -396,6 +421,7 @@ public class PowerfulRobot extends CaptureTheFlagApi {
         }
 
         double distance = Math.sqrt(Math.pow(destination.x - currentX, 2) + Math.pow(destination.y - currentY, 2));
+//System.out.println("        dist: "+distance);
         setAhead(distance);
         execute();
     }
