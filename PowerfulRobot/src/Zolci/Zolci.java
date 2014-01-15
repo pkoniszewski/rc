@@ -1,4 +1,4 @@
-package greatestteam;
+package Zolci;
 
 import CTFApi.CaptureTheFlagApi;
 import java.awt.Color;
@@ -15,7 +15,7 @@ import robocode.util.*;
 /**
  * PowerfulRobot - a robot by Greatest Team
  */
-public class PowerfulRobot extends CaptureTheFlagApi {
+public class Zolci extends CaptureTheFlagApi {
 
     private Random random = new Random();
     private MoveCompleteCondition moveCompleteContidion = new MoveCompleteCondition(this);
@@ -35,18 +35,19 @@ public class PowerfulRobot extends CaptureTheFlagApi {
          * initialisation.
          */
         registerMe();
+        
         System.out.println(getName());
         // Write your logic here
         // After trying out your robot, try uncommenting the next line:
-        //setColors(Color.red,Color.blue,Color.green);
+        setAllColors(Color.YELLOW);
         //back(Math.random() * 200);
-        addCustomEvent(new Condition("RobotStopped") {
-
-            @Override
-            public boolean test() {
-                return (getVelocity()==0);
-            }
-        });
+//        addCustomEvent(new Condition("RobotStopped") {
+//
+//            @Override
+//            public boolean test() {
+//                return (getVelocity()==0);
+//            }
+//        });
         if (this.getX() < 450) {
             left = true;
         } else {
